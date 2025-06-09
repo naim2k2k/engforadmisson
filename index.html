@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>English Explorer For Medical And University Admission</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #f4f4f4; padding: 20px; }
+    h1 { background: #007bff; color: white; padding: 20px; border-radius: 8px; font-weight: bold; }
+    input, button, textarea { padding: 10px; width: 260px; margin: 5px; font-size: 16px; }
+    button { cursor: pointer; }
+    .admin-btn { background: #333; color: #fff; }
+    .btn-refresh { background: #28a745; color: #fff; border: none; margin-top: 10px; }
+    table { margin: 20px auto; border-collapse: collapse; width: 95%; display: none; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #007bff; color: white; }
+    .status-btn { padding: 5px 10px; margin: 2px; }
+    .support-box { display: none; text-align: left; max-width: 800px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>English Explorer For Medical And University Admission</h1>
+  <p>বিশ্বাস করো তুমি জয়ী হওয়ার জন্যই এসেছো এখানে</p>
+
+  <div id="formSection">
+    <input type="text" id="name" placeholder="Name"><br>
+    <input type="text" id="phone" placeholder="Phone Number"><br>
+    <input type="number" id="amount" placeholder="Amount"><br>
+    <input type="text" id="trxid" placeholder="Transaction ID"><br>
+    <button onclick="submitOrder()">Submit</button>
+  </div>
+
+  <div style="margin-top:20px;">
+    <button onclick="toggleMyOrder()">📄 My Order</button>
+    <button onclick="showHelp()">🆘 Help Center</button>
+    <button class="admin-btn" onclick="showAdminLogin()">🔒 Admin Login</button>
+  </div>
+
+  <div id="myOrderSection" style="display:none;">
+    <h2>My Order Status</h2>
+    <div id="myOrderStatus"></div>
+  </div>
+
+  <div id="adminLoginForm" style="display:none; margin-top:20px;">
+    <input type="password" id="adminPass" placeholder="Enter Admin Password">
+    <button onclick="checkAdmin()">Login</button>
+  </div>
+
+  <div id="ordersSection" style="display:none;">
+    <h2>All Orders</h2>
+    <button class="btn-refresh" onclick="refreshOrders()">Refresh</button>
+    <table id="ordersTable">
+      <tr>
+        <th>Name</th><th>Number</th><th>Amount</th><th>trxID</th><th>Status</th><th>Action</th>
+      </tr>
+    </table>
+  </div>
+
+  <div id="helpSection" class="support-box">
+    <h3>Help Center</h3>
+    <textarea id="complaintInput" placeholder="Write your complaint here..."></textarea><br>
+    <button onclick="submitComplaint()">Submit Complaint</button>
+    <div id="customerReplies"></div>
+  </div>
+
+  <div id="supportBox" class="support-box">
+    <h3>Support Box</h3>
+    <ul id="supportList"></ul>
+  </div>
+
+  <script>
+    const orders = [];
+    const complaints = [];
+
+    function submitOrder() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const amount = document.getElementById('amount').value.trim();
+      const trxid = document.getElementById('trxid').value.trim();
+
+      if (name && phone && amount && trxid) {
+        orders.push({ name, phone, amount, trxid, status: "Pending" });
+        alert("✅ Order Submitted Successfully!");
+        document.getElementById('name').value = "";
+        document.getElementById('phone').value = "";
+        document.getElementById('amount').value = "";
+        document.getElementById('trxid').value = "";
+      } else {
+        alert("⚠️ সব তথ্য পূরণ করুন।");
+      }
+    }
+
+    function toggleMyOrder() {
+      const phone = prompt("📱 আপনার মোবাইল নাম্বার লিখুন:");
+      const section = document.getElementById("myOrderSection");
+      const output = document.getElementById("myOrderStatus");
+      output.innerHTML = "";
+      section.style.display = 'block';
+      const myOrders = orders.filter(o => o.phone === phone);
+      if (myOrders.length === 0) {
+        output.innerHTML = "❌ কোনো অর্ডার পাওয়া যায়নি!";
+      } else {
+        myOrders.forEach(order => {
+          output.innerHTML += `
+            <p><strong>Amount:</strong> ${order.amount}, <strong>Status:</strong> ${order.status}</p>
+          `;
+        });
+      }
+    }
+
+    function showAdminLogin() {
+      document.getElementById('adminLoginForm').style.display = 'block';
+    }
+
+    function checkAdmin() {
+      const pass = document.getElementById('adminPass').value;
+      if (pass === "69naim69") {
+        document.getElementById('ordersSection').style.display = 'block';
+        document.getElementById('supportBox').style.display = 'block';
+        refreshOrders();
+        refreshComplaints();
+      } else {
+        alert("❌ Wrong Password!");
+      }
+    }
+
+    function refreshOrders() {
+      const table = document.getElementById('ordersTable');
+      table.innerHTML = `
+        <tr>
+          <th>Name</th><th>Number</th><th>Amount</th><th>trxID</th><th>Status</th><th>Action</th>
+        </tr>
+      `;
+      orders.forEach((order, index) => {
+        const row = table.insertRow();
+        row.innerHTML = `
+          <td>${order.name}</td>
+          <td>${order.phone}</td>
+          <td>${order.amount}</td>
+          <td>${order.trxid}</td>
+          <td>${order.status}</td>
+          <td>
+            <button class="status-btn" onclick="updateStatus(${index}, 'Received')">✅ Receive</button>
+            <button class="status-btn" onclick="updateStatus(${index}, 'Declined')">❌ Decline</button>
+          </td>
+        `;
+      });
+      table.style.display = "table";
+    }
+
+    function updateStatus(index, status) {
+      orders[index].status = status;
+      refreshOrders();
+    }
+
+    function showHelp() {
+      document.getElementById('helpSection').style.display = 'block';
+    }
+
+    function submitComplaint() {
+      const message = document.getElementById("complaintInput").value.trim();
+      if (message) {
+        complaints.push({ message, reply: null });
+        alert("✅ Complaint submitted!");
+        document.getElementById("complaintInput").value = "";
+      }
+    }
+
+    function refreshComplaints() {
+      const list = document.getElementById("supportList");
+      list.innerHTML = "";
+      complaints.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>Complaint:</strong> ${item.message}<br>
+          <strong>Reply:</strong> ${item.reply || 'No reply yet'}<br>
+          <textarea id='reply-${index}' placeholder='Write reply...'></textarea>
+          <button onclick='sendReply(${index})'>Send Reply</button>
+          <hr>`;
+        list.appendChild(li);
+      });
+    }
+
+    function sendReply(index) {
+      const replyText = document.getElementById(`reply-${index}`).value.trim();
+      if (replyText) {
+        complaints[index].reply = replyText;
+        refreshComplaints();
+      }
+    }
+  </script>
+</body>
+</html>
